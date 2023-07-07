@@ -1,0 +1,55 @@
+MainActivity.java
+
+package com.example.sms;
+
+import static android.content.Intent.ACTION_DIAL;
+import static android.content.Intent.ACTION_SEND;
+import static android.content.Intent.ACTION_VIEW;
+import static android.content.Intent.EXTRA_EMAIL;
+import static android.content.Intent.EXTRA_SUBJECT;
+import static android.content.Intent.EXTRA_TEXT;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+    Button sendBtn;
+    Button btnSendEmail;
+    Button btnPhone;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        sendBtn = findViewById(R.id.btnSendSMS);
+        btnSendEmail = findViewById(R.id.btnSendEmail);
+        btnPhone = findViewById(R.id.btnDialPhone);
+        sendBtn.setOnClickListener(view -> sendSMSMessage());
+        btnSendEmail.setOnClickListener(v -> sendEmail());
+        btnPhone.setOnClickListener(v -> PhoneDial());
+    }
+    @SuppressLint("IntentReset")
+    protected void sendEmail() {
+        Intent emailIntent = new Intent(ACTION_SEND);
+
+        emailIntent.setType("text/plain");
+
+        startActivity(emailIntent);
+    }
+    protected void sendSMSMessage() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", "+6378856306", null));
+        startActivity(intent);
+    }
+
+
+
+    protected void PhoneDial() {
+        Intent intent = new Intent(ACTION_DIAL);
+        startActivity(intent); }
+}

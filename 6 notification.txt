@@ -1,0 +1,55 @@
+MainActivity.java
+
+package com.example.notification;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
+@SuppressWarnings("ALL")
+public class MainActivity extends AppCompatActivity {
+    Button btn;
+    Notification notification;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        btn = findViewById(R.id.button);
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                NotificationManager nm = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+                    nm.createNotificationChannel(new NotificationChannel("my channel","new channel",NotificationManager.IMPORTANCE_HIGH));
+                    notification = new Notification.Builder(MainActivity.this)
+                            .setContentTitle("Notification")
+                            .setContentText("this is notification")
+                            .setChannelId("my channel")
+                            .setSmallIcon(R.drawable.ic_launcher_background)
+                            .build();
+                }
+
+              else{
+                    notification = new Notification.Builder(MainActivity.this)
+                            .setContentTitle("Notification")
+                            .setContentText("this is notification")
+                            .setSmallIcon(R.drawable.ic_launcher_background)
+                            .build();
+                }
+                nm.notify(100,notification);
+            }
+        });
+    }
+
+}

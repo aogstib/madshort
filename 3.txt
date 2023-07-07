@@ -1,0 +1,175 @@
+MainActivity.java
+
+package com.example.my3pg;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.database.Cursor;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity {
+
+    Button insertbtn,viewbtn,updatebtn,deletebtn;
+    EditText name,contact,dob;
+
+    DBHelper DB;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        name = findViewById(R.id.name);
+        contact=findViewById(R.id.contact);
+        dob=findViewById(R.id.dob);
+        insertbtn = findViewById(R.id.insert);
+        updatebtn =findViewById(R.id.update);
+        deletebtn =findViewById(R.id.delete);
+        viewbtn = findViewById(R.id.view);
+        DB = new DBHelper(this);
+
+        insertbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            String nametxt = name.getText().toString();
+            String contacttxt = contact.getText().toString();
+            String dobtxt = dob.getText().toString();
+
+           boolean res = DB.insertuserdata(nametxt,contacttxt,dobtxt);
+           if(res)
+           {
+               Toast.makeText(MainActivity.this, "data inserted successfully", Toast.LENGTH_SHORT).show();
+           }
+            else
+           {
+               Toast.makeText(MainActivity.this, "not inserted", Toast.LENGTH_SHORT).show();
+           }
+            }
+        });
+
+        updatebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String nametxt = name.getText().toString();
+                String contacttxt = contact.getText().toString();
+                String dobtxt = dob.getText().toString();
+
+                boolean res = DB.updateuserdata(nametxt,contacttxt,dobtxt);
+                if(res)
+                {
+                    Toast.makeText(MainActivity.this, "data updated successfully", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText(MainActivity.this, "not updated", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        viewbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            Cursor res = DB.viewuserdata();
+            StringBuilder bf = new StringBuilder();
+            while(res.moveToNext())
+            {
+                bf.append("name:").append(res.getString(0)).append("\n");
+                bf.append("contact:").append(res.getString(1)).append("\n");
+                bf.append("dob:").append(res.getString(2)).append("\n");
+            }
+            AlertDialog.Builder B = new AlertDialog.Builder(MainActivity.this);
+            B.setTitle("user details");
+            B.setMessage(bf.toString());
+            B.show();
+            }
+        });
+
+        deletebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+           String nametxt = name.getText().toString();
+          boolean res = DB.deleteuserdata(nametxt);
+          if(res)
+          {
+              Toast.makeText(MainActivity.this, "deleetd successfully", Toast.LENGTH_SHORT).show();
+          }
+          else
+          {
+              Toast.makeText(MainActivity.this, "not deleted", Toast.LENGTH_SHORT).show();
+          }
+            }
+        });
+    }
+}
+
+
+
+
+
+
+DBhelper.java
+
+package com.example.my3pg;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class DBHelper extends SQLiteOpenHelper {
+
+
+    public DBHelper(Context context) {
+        super(context,"Userdatabase.db",null,1);
+
+    }
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL("Create Table userdetails(name TXT primary key, contact TXT, dob TXT)");
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+     db.execSQL("DROP table if exists userdetails");
+    }
+    public boolean insertuserdata(String nametxt, String contacttxt, String dobtxt) {
+   SQLiteDatabase DB =  this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("name",nametxt);
+        cv.put("contact",contacttxt);
+        cv.put("dob",dobtxt);
+            long result =    DB.insert("userdetails",null,cv);
+            return result!=-1;
+    }
+
+    public boolean updateuserdata(String nametxt, String contacttxt, String dobtxt) {
+        SQLiteDatabase DB =  this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("name",nametxt);
+        cv.put("contact",contacttxt);
+        cv.put("dob",dobtxt);
+        long result = DB.update("userdetails",cv,"name=?", new String[]{nametxt});
+        return result!=-1;
+    }
+
+    public boolean deleteuserdata(String nametxt) {
+        SQLiteDatabase DB =  this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("name",nametxt);
+        long result = DB.delete("userdetails","name=?",new String[]{nametxt});
+        return result!=-1;
+    }
+
+    public Cursor viewuserdata() {
+        SQLiteDatabase DB =  this.getWritableDatabase();
+      return  DB.rawQuery("Select * from userdetails",null);
+
+
+    }
+
+
+}
